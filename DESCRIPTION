@@ -8,5 +8,13 @@ Description: This packages implement functions to generate multiple imputations 
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
     license
 Encoding: UTF-8
+Imports:
+    dplyr,
+    MASS,
+    Rcpp,
+    survey
+LinkingTo:
+    Rcpp,
+    RcppArmadillo
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 8.0.0
