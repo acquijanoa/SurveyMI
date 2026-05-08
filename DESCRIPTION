@@ -16,5 +16,7 @@ Imports:
 LinkingTo:
     Rcpp,
     RcppArmadillo
+Suggests:
+    testthat (>= 3.0.0)
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 8.0.0

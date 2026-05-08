@@ -1,21 +1,55 @@
+#' @keywords internal
+#' @noRd
+.survey_sampling_weights <- function(design) {
+  if (!inherits(design, "survey.design")) {
+    stop("`design` must inherit from \"survey.design\" (see survey::svydesign()).")
+  }
+  w <- as.numeric(stats::weights(design))
+  n <- nrow(design$variables)
+  if (length(w) != n) {
+    stop(
+      "`weights(design)` length (",
+      length(w),
+      ") differs from nrow(design$variables) (",
+      n,
+      ")."
+    )
+  }
+  if (any(!is.finite(w))) {
+    stop("Sampling weights from `weights(design)` must be finite.")
+  }
+  if (any(w < 0)) {
+    stop("Sampling weights from `weights(design)` must be non-negative.")
+  }
+  if (!any(w > 0)) {
+    stop("At least one sampling weight must be positive.")
+  }
+  w
+}
+
+
 #' Generate multinomial bootstrap replicate weights by stratum
 #'
 #' Builds bootstrap replicate weights for a complex survey design using
 #' stratum-specific multinomial PSU resampling with size `n_h - 1` and equal
 #' selection probabilities, then rescales by `n_h / (n_h - 1)`.
 #'
-#' @param design A survey design object containing strata, PSU identifiers, and
-#' base sampling weights.
+#' @param design A survey design object (`survey.design`) containing strata,
+#' PSU identifiers, and sampling weights. Base weights are taken from
+#' `weights(design)` (typically equal to the analysis weights from the
+#' `weights = ...` formula in [survey::svydesign()]); `design$allprob` is
+#' **not** used because it stores sampling probabilities, not weights.
 #' @param B Integer number of bootstrap replicates to generate.
 #' @param normalize If `TRUE` (default), each replicate column is divided by its
 #'   unweighted sample mean so replicate weights have mean one, following the
 #'   Kim-style bootstrap (divide each replicate by its unweighted mean).
 #'
-#' @return A data frame with one row per original observation, including stratum
-#'   and PSU identifiers plus replicate-weight columns `Wt_1` to `Wt_B`.
+#' @return A data frame with one row per observation, including stratum and PSU
+#' identifiers plus replicate-weight columns `Wt_1` to `Wt_B`.
 #'
 #' @importFrom dplyr `%>%` all_of arrange bind_rows filter group_by left_join n_distinct
 #'   select starts_with summarise
+#' @importFrom stats weights
 #' @export
 #' @examples
 #' design <- svydesign(
@@ -28,13 +62,12 @@
 #'
 #' w_boot <- multinom_weights(design, B = 200)
 #'
-
 multinom_weights <- function(design, B = 50, normalize = TRUE) {
    ## create a dataframe that contains strata, psu and sampling weights
    df <- data.frame(
      `strata` = unname(design$strata),
      `psu` = unname(design$cluster),
-     `weights` = unname(design$allprob),
+     `weights` = .survey_sampling_weights(design),
      `row_id` = seq_len(nrow(design$variables))
    )
 
@@ -92,4 +125,3 @@ multinom_weights <- function(design, B = 50, normalize = TRUE) {
 
    out
 }
-

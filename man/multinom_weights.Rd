@@ -7,8 +7,11 @@
 multinom_weights(design, B = 50, normalize = TRUE)
 }
 \arguments{
-\item{design}{A survey design object containing strata, PSU identifiers, and
-base sampling weights.}
+\item{design}{A survey design object (\code{survey.design}) containing strata,
+PSU identifiers, and sampling weights. Base weights are taken from
+\code{weights(design)} (typically equal to the analysis weights from the
+\code{weights = ...} formula in \code{\link[survey:svydesign]{survey::svydesign()}}); \code{design$allprob} is
+\strong{not} used because it stores sampling probabilities, not weights.}
 
 \item{B}{Integer number of bootstrap replicates to generate.}
 
@@ -17,8 +20,8 @@ unweighted sample mean so replicate weights have mean one, following the
 Kim-style bootstrap (divide each replicate by its unweighted mean).}
 }
 \value{
-A data frame with one row per original observation, including stratum
-and PSU identifiers plus replicate-weight columns \code{Wt_1} to \code{Wt_B}.
+A data frame with one row per observation, including stratum and PSU
+identifiers plus replicate-weight columns \code{Wt_1} to \code{Wt_B}.
 }
 \description{
 Builds bootstrap replicate weights for a complex survey design using
