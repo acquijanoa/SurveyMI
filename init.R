@@ -19,8 +19,6 @@ dsgn <-svydesign(data = data,
                     ids=~BGid,
                     weights=~bghhsub_s2, nest = TRUE)
 
-# Load the package
-devtools::load_all()
 
 # Run survey_mi
 fit <- survey_mi(design           = dsgn,

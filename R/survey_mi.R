@@ -1150,10 +1150,9 @@ survey_mi_fit <- function(data,
     beta[is.na(beta)] <- 0
   }
 
-  bdraw <- tryCatch(
-    as.numeric(MASS::mvrnorm(1L, beta, fit$vcov)),
-    error = function(e) beta
-  )
+  ## Do not double-perturb coefficients:
+  ## bootstrap replicate weights already inject parameter uncertainty.
+  bdraw <- as.numeric(beta)
 
   eta <- drop(x_new %*% bdraw)
 
